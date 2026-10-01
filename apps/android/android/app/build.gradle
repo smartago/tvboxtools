@@ -1,0 +1,215 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+// ============================ SIGNING — ONE KEY FOR EVERYTHING ============================
+// docs/SIGNING.md + keystore/README.md: the same smartago-secret.jks signs debug AND release,
+// googlePlay AND sideload, both brands — so any build installs over any other and only versionCode
+// decides the direction. Credentials live in <repo>/keystore/signing.properties (gitignored).
+// rootProject here is apps/android/android, so the repo root is three levels up.
+def keystoreDir = rootProject.file('../../../keystore')
+def signingProps = new Properties()
+def signingFile = new File(keystoreDir, 'signing.properties')
+if (signingFile.exists()) {
+    signingFile.withInputStream { signingProps.load(it) }
+}
+def hasReleaseSigning = signingProps.getProperty('storePassword') != null
+if (!hasReleaseSigning) {
+    logger.warn("keystore/signing.properties not found - signing with the default Android debug key. " +
+        "Such an APK can NOT install over a Play or sideload build (docs/SIGNING.md).")
+}
+
+// ============================ ONE VERSION LINE PER BRAND ============================
+// Same scheme as Premium-Launcher-UI-Kotlin (apps/plui/build.gradle.kts), so nobody invents a
+// second one:
+//   code — the googlePlay base. The SIDELOAD build of the same release is base + 1000, applied per
+//          variant in `androidComponents` at the bottom of this file.
+//   name — set BY HAND at release. A name that changed on every local build would make two apks
+//          with the same code claim different versions.
+// The brands ship on their own schedule (separate Play listings) — bump the one you release,
+// never the other "to stay in sync". This map is the single source of truth for applicationId,
+// versionCode and versionName; defaultConfig deliberately declares none of them.
+// The applicationIds are FINAL (Jim, 20/9/2026). They must stay identical to `androidAppId` in
+// brands/<id>.json and to the `appId` in apps/android/capacitor.config.ts — three files, one truth.
+// From the first Play upload on they can never change again.
+def brandVersions = [
+    launcher: [applicationId: 'com.tv.launcher.manager.adb.tvboxtools',       code: 6, name: '1.26.10.01'],
+]
+
+android {
+    // ONE product since 27/9/2026 (the kiosk flavour is gone). The brand dimension is kept with its
+    // single flavour so the variant names (launcherSideloadRelease…) and every script stay true.
+    namespace = "tv.launcher.manager"
+    // 37.0 (the platform folder is android-37.0): Kadb's AAR declares minCompileSdk=37. The Capacitor
+    // library modules keep variables.gradle's 36 — a library compiled against an older SDK is fine.
+    // AGP 8.13 accepts it with android.suppressUnsupportedCompileSdk in gradle.properties.
+    compileSdkVersion "android-37.0"
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        // NO applicationId / versionCode / versionName here on purpose — they are PER BRAND, see
+        // brandVersions above. A default here would be a second source of truth.
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile new File(keystoreDir, signingProps.getProperty('storeFile', 'smartago-secret.jks'))
+                storePassword signingProps.getProperty('storePassword')
+                keyAlias signingProps.getProperty('keyAlias')
+                keyPassword signingProps.getProperty('keyPassword')
+            }
+        }
+    }
+
+    buildFeatures {
+        // BuildConfig is off by default in AGP 8; the plugin reads FLAVOR_store from it to answer
+        // "was this copy distributed by Play?" — the question that decides whether the launcher
+        // picker may fetch an APK at all.
+        buildConfig true
+    }
+
+    buildTypes {
+        release {
+            // Minify / R8 OFF in every build type (Jim's rule, docs/SIGNING.md): release-only
+            // reflection breakage is not worth the size. No shrinkResources either.
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) signingConfig signingConfigs.release
+        }
+        debug {
+            // SAME KEY AS RELEASE: a debug build installs straight over a Play or sideload build
+            // (and vice versa) on a test phone. Without signing.properties gradle keeps its own
+            // debug key and that promise is off.
+            minifyEnabled false
+            if (hasReleaseSigning) signingConfig signingConfigs.release
+        }
+    }
+
+    // Two dimensions, the PLUI / tvsuite pattern: brand × store.
+    //   brand: launcher              → applicationId, version line, src/launcher/res (name, icons)
+    //   store: googlePlay | sideload → sideload = versionCode + 1000 (always "newer" than Play)
+    // → launcherGooglePlay, launcherSideload
+    //   gradlew assembleLauncherSideloadDebug · bundleLauncherGooglePlayRelease · …
+    flavorDimensions "brand", "store"
+    productFlavors {
+        launcher {
+            dimension "brand"
+            applicationId brandVersions.launcher.applicationId
+            versionCode brandVersions.launcher.code      // googlePlay base; sideload gets +1000 below
+            versionName brandVersions.launcher.name
+        }
+        googlePlay {
+            dimension "store"
+        }
+        sideload {
+            dimension "store"
+        }
+    }
+
+    // ARTIFACT NAMING (the Smartago rule, docs/SIGNING.md): the file is named after the PACKAGE and
+    // nothing else; brand, store and build type are said by the PATH:
+    //     app/build/outputs/apk/<brand><Store>/<buildType>/<applicationId>.apk
+    //     e.g. app/build/outputs/apk/launcherSideload/debug/com.tv.launcher.manager.adb.tvboxtools.apk
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            output.outputFileName = "${variant.applicationId}.apk"
+        }
+    }
+
+    packagingOptions {
+        resources {
+            // BouncyCastle (bcprov + bcpkix, pulled in by Kadb) both ship this multi-release entry.
+            excludes += ['META-INF/versions/9/OSGI-INF/MANIFEST.MF']
+        }
+    }
+}
+
+// Same rule for the Play bundle, ported from PLUI (apps/plui/build.gradle.kts): AGP does not
+// expose the .aab name the way it does the apk's, so gradle writes its own name first
+// (app-launcher-googlePlay-release.aab) and the canonical copy is made next to it:
+//     outputs/bundle/<brand><Store>Release/<applicationId>.aab
+// PLUI's lesson, kept: take the NEWEST .aab in the folder, never the first. An old file left behind
+// by a rename would otherwise be copied forever and every build would ship the same stale bundle.
+tasks.matching { it.name.startsWith('bundle') && it.name.endsWith('Release') }.configureEach { t ->
+    t.doLast {
+        def variant = t.name.substring('bundle'.length())
+        variant = variant[0].toLowerCase() + variant.substring(1)
+        def brand = brandVersions.keySet().find { variant.startsWith(it) }
+        if (brand == null) return
+        def appId = brandVersions[brand].applicationId
+        def dir = layout.buildDirectory.dir("outputs/bundle/${variant}").get().asFile
+        def src = dir.listFiles()?.findAll { it.name.endsWith('.aab') && it.name != "${appId}.aab" }
+            ?.max { it.lastModified() }
+        if (src == null) return
+        def dst = new File(dir, "${appId}.aab")
+        dst.bytes = src.bytes
+        logger.lifecycle("bundle -> ${variant}/${appId}.aab")
+    }
+}
+
+kotlin {
+    compilerOptions {
+        // capacitor.build.gradle (generated) sets Java 21 for javac; Kotlin must match.
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
+}
+
+// versionCode per variant = brand base (+1000 for sideload), through the Variant API so it reaches
+// the manifest (and BuildConfig, should it ever be enabled) — the legacy versionCodeOverride only
+// reaches the manifest.
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        def brand = variant.productFlavors.find { it.first == 'brand' }?.second
+        def store = variant.productFlavors.find { it.first == 'store' }?.second
+        if (brand == null) return
+        def code = brandVersions[brand].code + (store == 'sideload' ? 1000 : 0)
+        variant.outputs.each { it.versionCode.set(code) }
+    })
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+
+    // ---- AdbSocket plugin (src/main/java/tv/launcher/manager/) ----
+    // Kadb (Apache-2.0, Maven Central): used ONLY for Android 11+ Wireless-debugging PAIRING
+    // (SPAKE2 + TLS, the part that is not worth re-implementing) and for the persistent client
+    // identity (RSA key + self-signed X.509) that our TLS connect presents afterwards. The ADB
+    // protocol itself runs in JS (Tango) over the raw sockets this plugin exposes.
+    implementation 'com.flyfishxu:kadb:2.1.4'
+    // Kadb.pair is a suspend fun → runBlocking on the plugin's own worker thread.
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0'
+    // PEM parsing of the Kadb identity (private key + certificate) into a KeyManager for the TLS
+    // client socket. Same version Kadb brings at runtime, so nothing extra ships.
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.84'
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

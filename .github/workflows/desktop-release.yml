@@ -1,0 +1,100 @@
+# The desktop tool for the two systems this Windows machine cannot package (Jim, 27/9/2026:
+# "kane kai mac linux"):
+#   · macOS — electron-builder refuses to build for macOS anywhere but on macOS (no hdiutil, no
+#     codesign). A Mac, or this runner.
+#   · Linux AppImage — needs symlinks, which Windows only grants to administrators or with
+#     Developer Mode on; a tar.gz can be made on Windows, an AppImage cannot.
+# Windows is built here too, so one click gives all three from the same commit.
+#
+# MANUAL ONLY (workflow_dispatch): a private repository pays for runner minutes, and macOS minutes
+# are the expensive ones — nothing here runs by itself on a push.
+#
+# First run, 29/9/2026: "No jobs were run". The systems were picked with a job-level
+# `if: contains(github.event.inputs.targets, matrix.id)`, and when the run is dispatched without the
+# input spelled out (the API and `gh workflow run` do not always apply the default the way the web
+# form does) `targets` arrives empty, every row of the matrix tests false, and the run ends in
+# seconds having built nothing — and having said nothing about why. The `plan` job below now builds
+# the matrix from the input instead: only the systems asked for get a runner, and a targets value
+# that names no system stops the run with a message rather than quietly doing nothing.
+name: desktop-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: "Which systems (comma-separated): mac,linux,win"
+        default: "mac,linux"
+        required: true
+
+jobs:
+  # Cheap Linux runner, seconds long: turns "mac,linux" into the matrix the build job runs.
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.pick.outputs.matrix }}
+    steps:
+      - id: pick
+        shell: bash
+        env:
+          # The fallback is the same default as the input: a dispatch that omits it builds mac+linux,
+          # which is what the description promises.
+          TARGETS: ${{ inputs.targets || 'mac,linux' }}
+        run: |
+          include=""
+          add() { include="${include:+$include,}$1"; }
+          for t in $(echo "$TARGETS" | tr ',' ' '); do
+            case "$t" in
+              mac)   add '{"id":"mac","os":"macos-latest","flag":"--mac","glob":"release/launcher/*.dmg"}' ;;
+              linux) add '{"id":"linux","os":"ubuntu-latest","flag":"--linux","glob":"release/launcher/*.AppImage"}' ;;
+              win)   add '{"id":"win","os":"windows-latest","flag":"--win","glob":"release/launcher/*.exe"}' ;;
+              *)     echo "Unknown system '$t' — targets accepts mac, linux, win." >&2; exit 1 ;;
+            esac
+          done
+          if [ -z "$include" ]; then
+            echo "targets was '$TARGETS' — it names no system, so there is nothing to build." >&2
+            exit 1
+          fi
+          echo "Building: $TARGETS"
+          echo "matrix={\"include\":[$include]}" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: plan
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    env:
+      TVLM_BRAND: launcher
+      # No certificate in CI: do not go looking for one. The installers are unsigned, as they are
+      # on the site today; the SHA-256 in /dl/SHA256SUMS is what a person checks.
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Web bundle
+        run: pnpm --filter @tvlm/web build:launcher
+
+      - name: Desktop main
+        run: pnpm --filter @tvlm/desktop build:main
+
+      - name: Package
+        working-directory: apps/desktop
+        run: npx electron-builder --config electron-builder.config.mjs ${{ matrix.flag }} --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tvlm-${{ matrix.id }}
+          path: apps/desktop/${{ matrix.glob }}
+          if-no-files-found: error

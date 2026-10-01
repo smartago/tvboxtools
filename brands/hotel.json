@@ -1,0 +1,58 @@
+{
+  "id": "hotel",
+  "name": "Hotel TV",
+  "byline": "the launcher the tool installs for hotels, BnBs and hospitals",
+  "launcherName": "HOTELTV",
+  "launcherPackage": "com.hotel.bnb.smart.hospitality.tv.launcher",
+  "launcherHomeComponent": "com.hotel.bnb.smart.hospitality.tv.launcher/com.premium.tv.launcher.ui.LauncherActivity",
+  "launcherAccessibilityService": "com.hotel.bnb.smart.hospitality.tv.launcher/com.premium.tv.launcher.ui.HomeCaptureService",
+  "launcherNotificationListener": "com.hotel.bnb.smart.hospitality.tv.launcher/com.premium.tv.launcher.ui.data.PluiNotificationListenerService",
+  "launcherDeviceAdminReceiver": "com.hotel.bnb.smart.hospitality.tv.launcher/com.premium.tv.launcher.ui.hotel.HotelDeviceAdminReceiver",
+  "domain": "hoteltvapp.com",
+  "siteLabel": "HotelTVApp.com",
+  "webPath": "/kiosk-manager",
+  "manifestUrl": "https://hoteltvapp.com/dl/manifest.json",
+  "agentPage": "https://hoteltvapp.com/boxsetupai",
+  "androidAppId": "com.tv.launcher.manager.adb.tvboxtools",
+  "desktopProductName": "TV Launcher Manager",
+  "cli": "tvlm",
+  "flow": "kiosk",
+  "roleStep": true,
+  "accountCheck": true,
+  "profiles": [
+    "kiosk",
+    "open",
+    "install-only"
+  ],
+  "homeMethods": [
+    "set-home-activity",
+    "device-owner",
+    "disable-stock"
+  ],
+  "accessibilityHome": true,
+  "launcherAsksAllPermissions": true,
+  "fireTv": "blocked",
+  "never": [],
+  "tasks": [],
+  "taskLinks": {},
+  "debugOffAtHandover": true,
+  "colors": {
+    "gradient": [
+      "#0E1C3D",
+      "#142A50",
+      "#0F4438"
+    ],
+    "cta": "#109F6F",
+    "ctaText": "#04140E",
+    "confirm": "#00A1A9",
+    "confirmSoft": "#7FD9D4",
+    "focus": "#FFCC00"
+  },
+  "logo": {
+    "wordmark": "tvboxtools-logo-dark.png",
+    "icon": "tvboxtools-icon-512.png",
+    "banner": "tvboxtools-banner.png",
+    "full": "tvboxtools-logo.png",
+    "onLight": false
+  }
+}

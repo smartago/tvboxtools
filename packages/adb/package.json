@@ -1,0 +1,41 @@
+{
+  "name": "@tvlm/adb",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "ADB transports on top of Tango (ya-webadb): the AdbDevice interface the core uses, a Mock transport (prototype scenarios), WebUSB (browser + Node via `usb`), Node TCP (daemon on :5555), and a bridge to a running adb server.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./mock": "./src/mock.ts",
+    "./webusb": "./src/webusb.ts",
+    "./node": "./src/node/index.ts",
+    "./capacitor": "./src/capacitor.ts",
+    "./electron": "./src/electron.ts",
+    "./bridge": "./src/bridge.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "check": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.2",
+    "@tvlm/core": "workspace:*",
+    "@yume-chan/adb": "^2.6.4",
+    "@yume-chan/adb-credential-web": "^2.1.0",
+    "@yume-chan/adb-daemon-webusb": "^2.3.2",
+    "@yume-chan/adb-server-node-tcp": "^2.5.2",
+    "@yume-chan/android-bin": "^2.1.0",
+    "@yume-chan/stream-extra": "^2.6.1"
+  },
+  "optionalDependencies": {
+    "usb": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.1"
+  }
+}

@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!-- THE line that made the app unusable on a phone until 27/9/2026: `width=1280` told every
+         handset to lay the page out 1280 px wide and then cut off whatever did not fit. The app
+         now follows the real screen and changes shape below 780 px (portrait.css); a television
+         is unaffected, because <App> scales its own canvas from window.innerWidth whatever that
+         is. viewport-fit=cover is for edge-to-edge Android (targetSdk 35+). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <title>TV Launcher Manager</title>
+    <link rel="icon" href="./brand/hoteltv-icon-512.png" id="favicon" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

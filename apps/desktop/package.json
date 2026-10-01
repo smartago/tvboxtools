@@ -1,0 +1,36 @@
+{
+  "name": "@tvlm/desktop",
+  "version": "1.26.1001",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Electron shell for Windows / macOS / Linux: the web bundle in the renderer, Tango in the Node main process (USB + TCP), one installer per brand.",
+  "type": "module",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "build:main": "node build.mjs",
+    "start": "pnpm build:main && electron .",
+    "dist:launcher": "pnpm --filter @tvlm/web run build:launcher && cross-env TVLM_BRAND=launcher pnpm build:main && cross-env TVLM_BRAND=launcher electron-builder --config electron-builder.config.mjs",
+    "dist:linux": "pnpm --filter @tvlm/web run build:launcher && cross-env TVLM_BRAND=launcher pnpm build:main && cross-env TVLM_BRAND=launcher electron-builder --config electron-builder.config.mjs --linux",
+    "dist:mac": "pnpm --filter @tvlm/web run build:launcher && cross-env TVLM_BRAND=launcher pnpm build:main && cross-env TVLM_BRAND=launcher electron-builder --config electron-builder.config.mjs --mac",
+    "check": "tsc --noEmit -p tsconfig.main.json",
+    "pack:launcher": "pnpm --filter @tvlm/web run build:launcher && cross-env TVLM_BRAND=launcher pnpm build:main && cross-env TVLM_BRAND=launcher electron-builder --config electron-builder.config.mjs --dir"
+  },
+  "dependencies": {
+    "@tvlm/adb": "workspace:*",
+    "@tvlm/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "cross-env": "^10.1.0",
+    "electron": "^44.4.3",
+    "electron-builder": "^26.15.3",
+    "esbuild": "0.28.2",
+    "typescript": "^5.9.3"
+  },
+  "optionalDependencies": {
+    "@node-usb/usb-linux-x64-gnu": "3.1.0",
+    "@node-usb/usb-darwin-x64": "3.1.0",
+    "@node-usb/usb-darwin-arm64": "3.1.0",
+    "@node-usb/usb-win32-x64-msvc": "3.1.0"
+  }
+}

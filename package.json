@@ -1,0 +1,23 @@
+{
+  "name": "tv-launcher-manager",
+  "private": true,
+  "license": "Apache-2.0",
+  "version": "1.26.10.01",
+  "description": "TV Launcher Manager — one core, two brands (PLUI / HOTELTV): wizard + workspace that provisions Android TV boxes over ADB. Web, desktop (Win/Mac/Linux), Android, CLI/MCP.",
+  "packageManager": "pnpm@12.4.2",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @tvlm/web dev",
+    "build": "pnpm -r --filter \"./packages/*\" build && pnpm --filter @tvlm/web build",
+    "test": "pnpm -r --if-present test",
+    "check": "pnpm -r --if-present check",
+    "cli": "pnpm --filter @tvlm/cli start --"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.1"
+  }
+}

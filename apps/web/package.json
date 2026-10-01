@@ -1,0 +1,30 @@
+{
+  "name": "@tvlm/web",
+  "version": "1.26.10.01",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "The web face (PWA): USB straight from Chrome via WebUSB; Wi-Fi only through the local bridge. Also the bundle that desktop and Android ship.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:launcher": "cross-env TVLM_BRAND=launcher vite build --outDir dist/launcher",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "dependencies": {
+    "@capacitor/clipboard": "^8.0.1",
+    "@tvlm/adb": "workspace:*",
+    "@tvlm/core": "workspace:*",
+    "@tvlm/ui": "workspace:*",
+    "svelte": "^5.57.1",
+    "@capacitor/core": "^8.5.2"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "cross-env": "^10.1.0",
+    "svelte-check": "^4.7.6",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.0"
+  }
+}

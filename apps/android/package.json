@@ -1,0 +1,24 @@
+{
+  "name": "@tvlm/android",
+  "version": "1.26.10.01",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Capacitor Android app (phone / tablet on the same Wi-Fi as the box). Two brands x two stores = four gradle variants, one signing key. Native: the AdbSocket Kotlin plugin (TCP connect, Wireless-debugging pairing/TLS).",
+  "type": "module",
+  "scripts": {
+    "sync:launcher": "cross-env TVLM_BRAND=launcher pnpm --filter @tvlm/web build:launcher && cross-env TVLM_BRAND=launcher npx cap sync android",
+    "open": "npx cap open android",
+    "icons": "node scripts/icons.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/clipboard": "^8.0.1",
+    "@capacitor/core": "^8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.2",
+    "cross-env": "^10.1.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,332 @@
+/* @tvlm/ui — THE PHONE LAYOUT (27/9/2026).
+   =========================================================================================
+   The app is designed as one 1280×820 canvas (DESIGN_NOTES §10). A television gets that canvas
+   scaled to the screen; a phone cannot, because 400/1280 is a scale of 0.31 and the design's 16 px
+   body text lands at 5 px. So below `PHONE_W`/`PHONE_H` (App.svelte) the app does not shrink, it
+   CHANGES SHAPE: one column, the task nav becomes a drawer, the console collapses to its bar, the
+   key hints go away (a finger has no Esc key).
+
+   EVERY rule in this file is under `.app.phone`, which <App> sets from the viewport. Nothing here
+   can reach the desktop or the television — that is the point, and the reason the rules live in one
+   file instead of twenty component media queries: one place to read, one place to fix.
+
+   The screens' own styles are component-scoped (`.w1.svelte-hash`, one class + one attribute), so a
+   two-class prefix here wins the cascade without `!important`. Inline sizes are the exception (the
+   TV frames set width/height as attributes) — those are handled with `zoom`, which scales the box
+   for real, instead of fighting the attribute.
+   ========================================================================================= */
+
+/* ------------------------------------------------------------------ header: two rows, not one */
+/* The 64 px header carries a logo, a device pill and up to three buttons. At 400 px they cannot sit
+   on one line, so the row is allowed to wrap and the header grows instead of cutting things off. */
+.app.phone .hdr {
+  height: auto;
+  min-height: 52px;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  padding: 8px 12px;
+}
+.app.phone .hdr .logo { height: 28px; max-width: 200px; }
+.app.phone .hdr .plate .logo { height: 18px; }
+/* the "Android / Windows" chip repeats what the phone already knows */
+.app.phone .hdr .chip { display: none; }
+.app.phone .hdr .dev { padding: 5px 10px; font-size: 12px; gap: 7px; max-width: 100%; flex-wrap: wrap; white-space: normal; }
+.app.phone .hdr .dev .dim { display: none; }
+.app.phone .hdr .pchip { font-size: 12px; padding: 5px 9px; }
+.app.phone .hdr .lang { height: 32px; padding: 0 9px; }
+.app.phone .hdr .fl { width: 20px; height: 14px; }
+
+/* ------------------------------------------------------------------ stepper: one scrolling line */
+/* Eleven pills never fit. The row scrolls sideways and Stepper.svelte keeps the active pill in
+   view, so the step you are on is always the one you see. */
+.app.phone .stepper {
+  height: auto;
+  min-height: 40px;
+  padding: 2px 12px 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.app.phone .stepper::-webkit-scrollbar { display: none; }
+.app.phone .stepper .pill { font-size: 12px; padding: 4px 10px 4px 5px; }
+.app.phone .stepper .dot { width: 21px; height: 21px; }
+
+/* ------------------------------------------------------------------ the wizard body and footer */
+.app.phone .body { padding: 14px 14px 0; }
+.app.phone .footer {
+  height: auto;
+  min-height: 62px;
+  padding: 10px 12px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+/* "↑↓ Move · Enter Select · Esc Back" is a keyboard's story */
+.app.phone .footer .hints { display: none; }
+/* ONE row (Jim, 27/9). The buttons keep the line and share it; a long label wraps INSIDE its own
+   button instead of pushing the next one off the screen, which is why `white-space` is released
+   here and the height is free to grow. */
+.app.phone .footer { flex-wrap: nowrap; }
+.app.phone .footer .btn {
+  height: auto;
+  min-height: 44px;
+  padding: 7px 14px;
+  font-size: 13.5px;
+  line-height: 1.2;
+  white-space: normal;
+  min-width: 0;
+}
+.app.phone .footer .btn-gold { flex: 1 1 auto; }
+.app.phone .footer .btn-ghost, .app.phone .footer .btn-outline { flex: 0 1 auto; }
+/* the spacer that pushed the buttons apart on a 1280 window, and the key hints: neither has a job
+   on a phone, and both are plain divs in this footer */
+.app.phone .footer > div { display: none; }
+
+/* ------------------------------------------------------------------ two columns become one */
+/* Every guide screen is "text on the left, the television on the right". On a phone the television
+   goes under the text, where it reads as an illustration of what was just said.
+   NOTE: no `display: grid` here. Some screens are flex columns and turning them into grids changed
+   their spacing for no reason; `grid-template-columns` on a flex box is simply ignored. */
+.app.phone .w1,
+.app.phone .w2,
+.app.phone .w3,
+.app.phone .w4,
+.app.phone .w5,
+.app.phone .w6,
+.app.phone .w7,
+.app.phone .w8,
+.app.phone .w9,
+.app.phone .wk,
+.app.phone .wl,
+.app.phone .wt3,
+/* and the workspace pages, which are "the task on the left, its panel on the right" */
+.app.phone .over,
+.app.phone .conf,
+.app.phone .hand,
+.app.phone .lau,
+.app.phone .test,
+.app.phone .agent {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-content: start;
+}
+/* the tighter inner grids (choices, options, columns of apps) stack too. `minmax(0, 1fr)` and not
+   `1fr`: a column sized `1fr` still refuses to go below its longest word, which is how "Xiaomi Mi
+   Box / Stick" pushed its own card off the screen. */
+.app.phone .opts,
+.app.phone .modes,
+.app.phone .cols,
+.app.phone .types,
+.app.phone .cards,
+.app.phone .grid,
+.app.phone .grid2,
+.app.phone .grid3,
+.app.phone .dgrid,
+.app.phone .facts,
+.app.phone .setup,
+.app.phone .why,
+.app.phone .panel,
+.app.phone .pairgrid {
+  grid-template-columns: minmax(0, 1fr);
+}
+/* A line that refuses to wrap is a line that pushes the page sideways, and a page wider than the
+   screen is one double-tap away from the zoomed, half-off-screen state Jim photographed. */
+.app.phone .sub { white-space: normal; }
+
+/* the pairing row keeps its two fields side by side — an IP and a 6-digit code are short */
+.app.phone .pairgrid { grid-template-columns: minmax(0, 1fr) 96px; }
+/* Debloat's rows are label | size | switch: the switch stays on the line, the size goes under */
+.app.phone .row { grid-template-columns: minmax(0, 1fr) auto; }
+/* ONE scroller, the page. The design gives each screen an inner scrolling column, which on a
+   phone becomes a 120 px window with three rows in it and a fade at the bottom — the classic
+   "scroll inside a scroll" nobody can work. Here the screen is as tall as its content and the
+   wizard body scrolls, so a list simply continues down the page. */
+.app.phone .body { overflow: auto; -webkit-overflow-scrolling: touch; }
+.app.phone .body > .screen { flex: 0 0 auto; min-height: auto; overflow: visible; }
+.app.phone .list {
+  flex: none;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+  mask-image: none;
+}
+
+/* ------------------------------------------------------------------ the TV frames */
+/* Drawn at 720×405 with absolutely positioned parts inside: `zoom` scales the whole thing, layout
+   included, so it takes the room it actually occupies. --mock-zoom comes from <App>. */
+.app.phone .tv { zoom: var(--mock-zoom, 1); }
+
+/* ------------------------------------------------------------------ typography, one notch down */
+.app.phone .h2 { font-size: 26px; }
+.app.phone .h2-ws { font-size: 22px; }
+.app.phone .lead { font-size: 15px; margin-top: 10px; }
+.app.phone .panel { padding: 16px; }
+.app.phone .row { padding: 10px 12px; gap: 10px; }
+
+/* ------------------------------------------------------------------ the workspace */
+/* The 236 px task nav becomes a drawer over the page (Workspace.svelte draws the button and the
+   backdrop). Off screen it is not just invisible — `visibility` keeps it out of the tab order and
+   away from the ↑↓ walk, which would otherwise start on an item nobody can see. */
+.app.phone .ws .nav {
+  position: absolute;
+  z-index: 40;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 84%;
+  max-width: 300px;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  background: #16223c;
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition: transform var(--dur-med) var(--ease-standard), visibility var(--dur-med);
+}
+.app.phone .ws .nav.open {
+  transform: none;
+  visibility: visible;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.55);
+}
+.app.phone .ws .page { padding: 12px 14px 18px; }
+
+/* ------------------------------------------------------------------ the console dock */
+/* Collapsed to its bar by default (Console.svelte treats a phone like a television). Opened, it
+   takes a share of the screen instead of a fixed 320 px, which on a short phone is most of it. */
+.app.phone .dock.compact.open { height: 40vh; max-height: 320px; }
+.app.phone .dock .bar { padding: 8px 12px; }
+.app.phone .dock .lines { padding: 8px 12px; }
+
+/* ------------------------------------------------------------------ the language offer */
+/* One row of "sentence + two buttons" at 411 px squeezed the sentence into a four-letter column,
+   because the buttons refuse to wrap their own text. Two rows instead. */
+.app.phone .ls { margin: 0 12px 8px; flex-wrap: wrap; row-gap: 8px; }
+.app.phone .ls .txt { flex: 1 0 100%; }
+
+/* ------------------------------------------------------------------ the human banner */
+.app.phone .human { margin: 0 0 10px; }
+
+/* ------------------------------------------------------------------ the tasks hub (wt3) */
+/* The hero and the kiosk card are "icon · text · button" on one line. At 411 px the text column
+   became four words wide and the button hung off the edge, so they stack and the action takes the
+   full width, where a thumb expects it. */
+.app.phone .hero,
+.app.phone .kiosk {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.app.phone .hcta,
+.app.phone .kact,
+.app.phone .kcta {
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+/* `grid-column: span 2` in a ONE-column grid does not mean "full width" — it invents a second
+   column, and the rows then sit on top of each other. That was the pile-up on this screen. */
+.app.phone .row.span2 { grid-column: auto; }
+
+/* ------------------------------------------------------------------ ΜΑΖΕΜΑ (Jim, 27/9) */
+/* A phone screen is a quarter of the canvas the design was drawn on, so everything that exists to
+   fill space on a 1280 px window is dead weight here: the big round icons, the 22 px paddings, the
+   36 px headings. They go, and what is left is the words and the buttons. */
+
+/* the decorative circles: a 60 px disc next to a title nobody can fit on one line */
+.app.phone .hico,
+.app.phone .kico,
+.app.phone .rico,
+.app.phone .dico,
+.app.phone .ico-circle,
+.app.phone .cards .ico { display: none; }
+
+/* headings one more notch down */
+.app.phone .h2 { font-size: 24px; }
+.app.phone .ttl { font-size: 24px; margin-top: 4px; }
+.app.phone .title { font-size: 26px; }
+.app.phone .lead { font-size: 14px; line-height: 1.5; }
+.app.phone .eye, .app.phone .eyebrow { font-size: 11px; letter-spacing: 2px; }
+.app.phone .hrow b { font-size: 19px; white-space: normal; }
+.app.phone .krow b { font-size: 17px; }
+.app.phone .rtxt b { font-size: 15px; }
+.app.phone .hdesc, .app.phone .kdesc { font-size: 13.5px; line-height: 1.45; }
+.app.phone .ct { font-size: 18px; margin-top: 10px; }
+.app.phone .cd { font-size: 13px; }
+
+/* the boxes themselves: less air, same content */
+.app.phone .hero, .app.phone .kiosk { padding: 14px; gap: 10px; border-radius: 16px; }
+.app.phone .card { padding: 14px; border-radius: 16px; }
+.app.phone .row, .app.phone .srow, .app.phone .arow { padding: 10px 12px; gap: 10px; }
+.app.phone .panel { padding: 14px; }
+.app.phone .ws .page { padding: 10px 12px 16px; }
+.app.phone .body { padding: 10px 12px 0; }
+.app.phone .hcta, .app.phone .kcta { height: 44px; font-size: 14px; }
+
+/* the guide's tick list and step rows: tighter, still legible */
+.app.phone .ticks { gap: 8px; margin-top: 18px; }
+.app.phone .tick { font-size: 14px; }
+.app.phone .tk { width: 26px; height: 26px; }
+.app.phone .num, .app.phone .n { width: 22px; height: 22px; }
+
+/* ------------------------------------------------------------------ Debugging (w5) */
+/* The three badges on the right ("Any Android box", "Android TV 9-10", "Android 11+") were pushing
+   every title onto two lines for information the description repeats a line below. Out (Jim, 27/9). */
+.app.phone .w5 .ttl .tag { display: none; }
+.app.phone .w5 .ttl { font-size: 16px; gap: 8px; }
+.app.phone .w5 .desc { font-size: 13px; }
+.app.phone .w5 .path { margin-top: 4px; padding: 5px 8px; font-size: 11.5px; }
+.app.phone .w5 .which { margin-top: 12px; font-size: 12px; }
+.app.phone .w5 .list { gap: 8px; }
+
+/* ------------------------------------------------------------------ the language screen (w1) */
+/* Its "Continue with <language>" is the screen's own button, not the footer's, so on a phone it sat
+   under 45 rows of languages. Pinned to the bottom of the scroll instead: the list moves behind it
+   and the way forward is always under the thumb. */
+.app.phone .w1 .cont {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  height: 48px;
+  font-size: 15px;
+  white-space: normal;
+  margin-top: 10px;
+  box-shadow: 0 -10px 24px rgba(10, 18, 34, 0.55);
+}
+
+/* ------------------------------------------------------------------ ΤΟ SCREEN ΤΗΣ ΓΛΩΣΣΑΣ (w1) */
+/* Δεν υπάρχει πια σε κινητό: η ερώτηση γίνεται με διάλογο πάνω από το πρώτο βήμα (LangAsk.svelte,
+   το μοτίβο του ZUKKA — Jim, 27/9). Οι κανόνες διάταξης που ήταν εδώ σβήστηκαν μαζί με την οθόνη·
+   ό,τι μένει είναι ΜΟΝΟ το κουμπί, για την περίπτωση που κάποιο brand ξαναφέρει τη λίστα. */
+.app.phone .w1 .cont { height: 48px; font-size: 15px; white-space: normal; }
+
+/* ------------------------------------------------------------------ η κεφαλίδα σε ΔΥΟ σειρές */
+/* Η γλώσσα έπεφτε σε τρίτη σειρά μόνη της (Jim, 28/9: «έσκασε το lang combo, και σε όλα τα tasks»):
+   ο διαχωριστής με `flex: 1` έπιανε ολόκληρη την πρώτη σειρά και έσπρωχνε τα πάντα παρακάτω. Εδώ
+   φεύγει, και η γλώσσα κάθεται δεξιά δίπλα στο λογότυπο — όπως ακριβώς στις οθόνες του οδηγού. */
+.app.phone .hdr > div[style] { display: none; }
+.app.phone .hdr .brand { order: 0; }
+.app.phone .hdr .lang { order: 1; margin-left: auto; }
+.app.phone .hdr .dev { order: 2; }
+/* the box / role chips repeat an answer the stepper already ticks off, and on a phone they cost a
+   whole header row next to the "Workspace" door — out (Jim, 28/9: η κεφαλίδα σε δύο σειρές). */
+.app.phone .hdr .pchip { display: none; }
+.app.phone .hdr .btn { order: 3; }
+
+/* ------------------------------------------------------------------ το κουμπί εκτέλεσης */
+/* Οθόνες που έχουν ΔΙΚΟ τους κουμπί δράσης (launcher picker, Hotel TV «χρήση») το κρύβουν κάτω από
+   μια λίστα: ο άνθρωπος διαλέγει και μετά δεν βλέπει με τι προχωράει. Καρφιτσώνεται στον πάτο του
+   scroll, ΠΑΝΩ από τη γραμμή του «Πίσω», και μεγαλώνει όσο θέλει το κείμενο αντί να το κόβει με
+   αποσιωπητικά («Install & set as HOME — Premium TV Lau…»). */
+.app.phone .cta {
+  position: sticky;
+  bottom: 6px;
+  z-index: 6;
+  height: auto;
+  min-height: 48px;
+  padding: 10px 16px;
+  font-size: 15px;
+  line-height: 1.25;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  box-shadow: 0 10px 22px rgba(8, 14, 26, 0.55);
+}
+.app.phone .ctasub { text-align: center; font-size: 12px; }

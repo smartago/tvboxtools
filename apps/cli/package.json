@@ -1,0 +1,30 @@
+{
+  "name": "@tvlm/cli",
+  "version": "1.26.10.01",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "tvlm — the same core from a terminal: --check --json, discover, connect, install, provision, and --mcp (Model Context Protocol server over stdio) for AI agents.",
+  "type": "module",
+  "bin": {
+    "tvlm": "./bin/tvlm.mjs"
+  },
+  "scripts": {
+    "start": "tsx src/main.ts",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@tvlm/adb": "workspace:*",
+    "@tvlm/core": "workspace:*",
+    "ws": "^8.21.3",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.1"
+  }
+}

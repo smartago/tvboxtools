@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- DESIGN_NOTES §16: on the PHONE only what the tool needs — the network to reach the box. No storage, no accessibility, no overlay,
+         nothing sensitive. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- mDNS (_adb-tls-connect / _adb-tls-pairing / _adb) needs the multicast lock on some phones -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!-- No CAMERA (27/9/2026, TVLM_PLAY_STUDY.md 2c). Every QR in this product is DRAWN, never scanned:
+         the Wi-Fi bridge QR on the find-the-box screen, and Hotel TV own first-boot linking QR on the
+         television. A TV box is paired with the 6-digit code from its Wireless debugging screen (SPAKE2,
+         Kadb) - Android own QR path runs the other way round (the HOST draws the code and the device
+         being paired scans it with its camera), and a TV has no camera: the Android TV settings app does
+         not even carry a QR activity. -->
+
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
+    <!-- required="false" on both, so the one APK installs on a phone AND on a TV: a TV has no
+         touchscreen, a phone has no leanback. Never mark leanback required — that would hide the
+         app from phones and, per Jim's standing rule, we never narrow the audience on Play. -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+
+    <!-- Το HOME της ΙΔΙΑΣ της συσκευής: ποιος launcher απαντά λέει τι box είναι (Google TV /
+         Android TV / Fire TV) χωρίς να ρωτηθεί κανείς, και είναι αυτός που το εργαλείο αργότερα
+         αντικαθιστά. Χωρίς αυτό το <queries> το package visibility (Android 11+) το κρύβει. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.HOME" />
+        </intent>
+        <!-- Υπάρχει εφαρμογή που να ανοίγει αρχεία σε ΑΥΤΗ τη συσκευή; Η οθόνη «Έχω το APK»
+             είναι ένα <input type=file>, και μια τηλεόραση συνήθως ΔΕΝ έχει διαχειριστή
+             αρχείων: το πάτημα έβγαζε το «You don't have an app that can do this» του ίδιου
+             του Android (Jim, 29/9). Χωρίς αυτές τις δύο γραμμές το resolveActivity θα
+             απαντούσε «κανείς» ακόμη και σε box που έχει — package visibility, Android 11+. -->
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT" />
+            <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.OPEN_DOCUMENT" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:banner="@drawable/banner"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <!-- windowSoftInputMode=adjustPan: the keyboard FLOATS over the app instead of resizing it
+             (Jim, 28/9). The default, adjustResize, squeezed the whole television canvas into the
+             top half the moment the leanback keyboard appeared — the app is ONE fixed canvas scaled
+             to the window, so a shorter window means a smaller everything. Nothing is resized now,
+             and the command field, which sits near the top, is never covered. -->
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan"
+            android:exported="true">
+
+            <!-- Two entries, one activity: phones list LAUNCHER, Android TV lists only
+                 LEANBACK_LAUNCHER (an app without it simply does not appear on a TV). -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+    </application>
+</manifest>

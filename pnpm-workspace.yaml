@@ -1,0 +1,28 @@
+packages:
+  - packages/*
+  - apps/*
+
+# pnpm 12 refuses postinstall scripts unless listed. These four are the only ones we need:
+# esbuild (vite), electron (downloads its binary), electron-winstaller (electron-builder),
+# sharp (@capacitor/assets icon generation).
+allowBuilds:
+  electron: true
+  electron-winstaller: true
+  esbuild: true
+  sharp: true
+
+minimumReleaseAgeExclude:
+  - svelte@5.57.1
+
+# The desktop tool ships for Windows, macOS and Linux (Jim, 27/9/2026: "kane kai mac linux"), and
+# `usb` (node-usb) is a native module with one prebuilt binary per platform. pnpm installs only the
+# host's by default, so a Linux AppImage built on this Windows machine would have no USB at all.
+# This asks for every platform's binary, so electron-builder finds the right one for each target.
+supportedArchitectures:
+  os:
+    - win32
+    - linux
+    - darwin
+  cpu:
+    - x64
+    - arm64

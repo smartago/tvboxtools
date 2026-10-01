@@ -1,0 +1,75 @@
+{
+  "id": "launcher",
+  "name": "TV Launcher Manager",
+  "byline": "by TV Box Tools",
+  "launcherName": "Premium TV Launcher",
+  "launcherPackage": "com.premium.tv.launcher.ui",
+  "launcherHomeComponent": "com.premium.tv.launcher.ui/.LauncherActivity",
+  "launcherAccessibilityService": "com.premium.tv.launcher.ui/.HomeCaptureService",
+  "launcherNotificationListener": "com.premium.tv.launcher.ui/.data.PluiNotificationListenerService",
+  "launcherDeviceAdminReceiver": null,
+  "domain": "tvboxtools.com",
+  "siteLabel": "TVBoxTools.com",
+  "webPath": "/setup",
+  "manifestUrl": "https://tvboxtools.com/dl/manifest.json",
+  "agentPage": "https://tvboxtools.com/boxsetupai",
+  "privacyUrl": "https://tvboxtools.com/privacy/",
+  "termsUrl": "https://tvboxtools.com/terms/",
+  "cookiesUrl": "https://tvboxtools.com/cookies/",
+  "sourceUrl": "https://github.com/smartago/tvboxtools",
+  "androidAppId": "com.tv.launcher.manager.adb.tvboxtools",
+  "desktopProductName": "TV Launcher Manager",
+  "cli": "tvlm",
+  "flow": "disable-launcher",
+  "roleStep": false,
+  "accountCheck": false,
+  "profiles": [
+    "open"
+  ],
+  "homeMethods": [
+    "disable-stock",
+    "set-home-activity"
+  ],
+  "accessibilityHome": false,
+  "launcherAsksAllPermissions": false,
+  "fireTv": "supported",
+  "never": [
+    "factory-reset"
+  ],
+  "tasks": [
+    "launcher",
+    "debloat",
+    "apk",
+    "backup",
+    "free",
+    "speedup",
+    "display",
+    "device",
+    "remote",
+    "screenshot",
+    "console",
+    "kiosk",
+    "advanced"
+  ],
+  "taskLinks": {},
+  "debugOffAtHandover": false,
+  "colors": {
+    "gradient": [
+      "#0E1C3D",
+      "#142A50",
+      "#0F4438"
+    ],
+    "cta": "#109F6F",
+    "ctaText": "#04140E",
+    "confirm": "#00A1A9",
+    "confirmSoft": "#7FD9D4",
+    "focus": "#FFCC00"
+  },
+  "logo": {
+    "wordmark": "tvboxtools-logo-dark.png",
+    "icon": "tvboxtools-icon-512.png",
+    "banner": "tvboxtools-banner.png",
+    "full": "tvboxtools-logo.png",
+    "onLight": false
+  }
+}

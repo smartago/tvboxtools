@@ -1,0 +1,183 @@
+/* @tvlm/ui — design tokens (DESIGN_NOTES §10) + the DS tokens we use (colors / typography / effects),
+   webfonts, keyframes and the handful of shared classes every screen relies on.
+   The prototype (design/prototype/TV Setup.dc.html) is the source of every value here. */
+
+/* The phone layout lives in its own file, all of it under `.app.phone` (see portrait.css). */
+@import './portrait.css';
+
+/* ---------------------------------------------------------------- fonts (copied from the DS) */
+@font-face { font-family: 'DM Sans'; src: url('./assets/fonts/dmsans_regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'DM Sans'; src: url('./assets/fonts/dmsans_medium.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'DM Sans'; src: url('./assets/fonts/dmsans_semibold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'DM Sans'; src: url('./assets/fonts/dmsans_bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/poppins_regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/poppins_medium.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Poppins'; src: url('./assets/fonts/poppins_semibold.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+/* icomoon icon fonts (the DS's `base-icon bi-*` / `plui-icon pi-*` glyphs the prototype uses) */
+@font-face { font-family: 'base-icomoon'; src: url('./assets/fonts/base_icomoon.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: 'plui-icomoon'; src: url('./assets/fonts/plui_icomoon.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: block; }
+
+/* ---------------------------------------------------------------- tokens */
+:root {
+  /* onboarding / wizard palette (DESIGN_NOTES §10, DS colors.css --wiz-*) */
+  --wiz-blue-1: #1A2744;
+  --wiz-blue-2: #243A6B;
+  --wiz-teal-deep: #1A4A4A;
+  --wiz-gold: #C8903A;
+  --wiz-gold-hover: #D9A04A;
+  --wiz-gold-light: #EAC35A;
+  --wiz-gold-text: #1A2744;
+  --wiz-teal: #00A1A9;
+  --wiz-teal-soft: #7FD9D4;
+  --wiz-teal-check: #4FD1C5;
+  --focus: #FFCC00;
+  /* semantic (DS) */
+  --danger: #E02424;
+  --danger-alt: #F05252;
+  --warning: #FFB800;
+  --success: #22C55E;
+  /* Tailwind gray ramp (DS) */
+  --gray-100: #F3F4F6; --gray-200: #E5E7EB; --gray-300: #D1D5DB; --gray-400: #9CA3AF; --gray-500: #6B7280;
+  --gray-600: #4B5563; --gray-700: #374151; --gray-800: #1F2937; --gray-900: #111827;
+  --ink: #1E1E1E;
+  /* glass surfaces (DS) */
+  --glass-50: rgba(0,0,0,.5); --glass-70: rgba(0,0,0,.7); --glass-80: rgba(0,0,0,.8);
+  --wash-10: rgba(255,255,255,.1); --wash-20: rgba(255,255,255,.2);
+  /* text (DS) */
+  --text: #fff; --text-sub: rgba(255,255,255,.8); --text-dim: rgba(255,255,255,.6);
+  /* the cards (DESIGN_NOTES §10): white/5 + border white/9, r-18; selected = gold/14 + gold/55 */
+  --card-bg: rgba(255,255,255,.05); --card-border: rgba(255,255,255,.09);
+  --card-sel-bg: rgba(200,144,58,.14); --card-sel-border: rgba(200,144,58,.55);
+  --row-bg: rgba(0,0,0,.28); --row-border: rgba(255,255,255,.08);
+  --panel-bg: rgba(0,0,0,.25);
+  /* Android TV Settings palette for the TV mocks (NOT ours) */
+  --tv-bg: #0B0E13; --tv-panel: #181C23; --tv-dialog: #232833; --tv-text: #EEEEEE; --tv-sub: #8B929D; --tv-row: #C9CED6;
+  /* radii (DS effects.css) */
+  --r-pill: 999px; --r-card: 16px; --r-btn: 10px; --r-chip: 8px; --r-sm: 6px; --r-tile: 18px;
+  /* typography (DS typography.css) */
+  --font-ui: 'Poppins', sans-serif;
+  --font-display: 'DM Sans', sans-serif;
+  --font-label: 'Roboto', Arial, sans-serif;
+  --font-mono: ui-monospace, Menlo, Consolas, monospace;
+  /* motion */
+  --dur-fast: 150ms; --dur-med: 200ms;
+  --ease-standard: cubic-bezier(.4,0,.2,1);
+  /* the window */
+  --app-w: 1280px; --app-h: 820px;
+}
+
+/* ---------------------------------------------------------------- keyframes (prototype helmet) */
+@keyframes tvs-spin { to { transform: rotate(360deg); } }
+@keyframes tvs-pulse { 0% { box-shadow: 0 0 0 0 rgba(200,144,58,.55); } 100% { box-shadow: 0 0 0 14px rgba(200,144,58,0); } }
+@keyframes tvs-blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@keyframes tvs-tap { 0% { transform: scale(1); } 40% { transform: scale(.94); } 100% { transform: scale(1); } }
+@keyframes tvs-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ---------------------------------------------------------------- base */
+html, body { height: 100%; }
+body { margin: 0; background: #ECEAE4; font-family: var(--font-ui); color: var(--ink); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font-family: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+*, *::before, *::after { box-sizing: border-box; }
+
+/* icons — DS icons.css classes the prototype uses */
+.base-icon { font-family: 'base-icomoon'; font-style: normal; font-weight: 400; line-height: 1; display: inline-block; }
+.plui-icon { font-family: 'plui-icomoon'; font-style: normal; font-weight: 400; line-height: 1; display: inline-block; }
+.bi-wifi::before { content: "\e92c"; } .bi-x::before { content: "\e906"; } .bi-plus::before { content: "\e90a"; } .bi-remote::before { content: "\e9aa"; }
+.bi-infinity::before { content: "\e9a5"; } .bi-solid-arrow-right::before { content: "\e96d"; } .bi-check::before { content: "\e968"; }
+.bi-check-circle-fill::before { content: "\e904"; } .bi-eye-slash-fill::before { content: "\e99d"; } .bi-arrow-clockwise::before { content: "\e90b"; }
+.bi-warning-fill::before { content: "\e90e"; } .bi-spinner::before { content: "\e90d"; } .bi-caret-down::before { content: "\e926"; }
+.pi-settings::before { content: "\e90d"; } .pi-cat-all::before { content: "\e906"; } .pi-cat-others::before { content: "\e901"; }
+.pi-opt-general::before { content: "\e91c"; } .pi-store::before { content: "\e937"; } .pi-wand::before { content: "\e93c"; } .pi-lock::before { content: "\e932"; }
+.pi-top-bar::before { content: "\e947"; } .pi-gallery::before { content: "\e94f"; } .pi-bag::before { content: "\e928"; } .pi-bullhorn::before { content: "\e92d"; } .pi-brain::before { content: "\e92b"; }
+.pi-users-group::before { content: "\e93a"; }
+
+/* ---------------------------------------------------------------- shared classes */
+.tvlm-spin { animation: tvs-spin 1s linear infinite; }
+.tvlm-blink { animation: tvs-blink 1.2s ease-in-out infinite; }
+.tvlm-pulse { animation: tvs-pulse 1s ease-out infinite; }
+.tvlm-fade { animation: tvs-fade .25s var(--ease-standard) both; }
+
+.h2 { margin: 0; font: 700 36px/1.12 var(--font-display); text-wrap: pretty; }
+.h2-ws { margin: 0; font: 700 30px/1.15 var(--font-display); }
+.lead { margin: 14px 0 0; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,.72); text-wrap: pretty; }
+.eyebrow { font-size: 12px; letter-spacing: 2px; color: rgba(255,255,255,.45); }
+.mono { font-family: var(--font-mono); font-weight: 400; }
+.dim { color: rgba(255,255,255,.55); }
+.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
+/* Focus: the yellow ring (DESIGN_NOTES §10 focus #FFCC00). It is painted OUTSIDE the element, so
+   it needs room: every scrolling container holding focusable cards must keep at least 10px of side
+   padding, or the ring is clipped at the card's edge (W1's language list did exactly that). */
+.tvlm-focus:focus-visible, .btn:focus-visible, .card:focus-visible, .nav-item:focus-visible, .tvlm-input:focus-visible {
+  outline: 3px solid var(--focus); outline-offset: 4px;
+}
+/* On a television there is no mouse, so every focus is a D-pad focus and the ring is always on:
+   `:focus-visible` would hide it after a remote's "click", leaving the viewer with no cursor. */
+.app.tv .tvlm-focus:focus, .app.tv .btn:focus, .app.tv .card:focus, .app.tv .nav-item:focus, .app.tv .tvlm-input:focus {
+  outline: 3px solid var(--focus); outline-offset: 4px;
+}
+
+/* the gold CTA */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; flex: none; border-radius: var(--r-pill); transition: background var(--dur-fast); }
+.btn-gold { height: 48px; padding: 0 30px; border: none; background: var(--wiz-gold); color: var(--wiz-gold-text); font: 700 15px var(--font-display); }
+.btn-gold:hover:not(:disabled) { background: var(--wiz-gold-hover); }
+.btn-gold:disabled { opacity: .4; }
+.btn-gold.sm { height: 40px; padding: 0 18px; font-size: 14px; }
+.btn-gold.xs { height: 36px; padding: 0 16px; font-size: 13px; }
+.btn-gold.lg { height: 52px; padding: 0 34px; font-size: 16px; }
+.btn-ghost { height: 48px; padding: 0 26px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: rgba(255,255,255,.85); font: 500 15px var(--font-display); }
+.btn-ghost:hover:not(:disabled) { background: rgba(255,255,255,.14); }
+.btn-ghost:disabled { opacity: .4; }
+.btn-ghost.sm { height: 40px; padding: 0 16px; font-size: 14px; }
+.btn-ghost.xs { height: 34px; padding: 0 14px; font-size: 13px; }
+.btn-outline { height: 48px; padding: 0 22px; background: transparent; border: 1px solid rgba(255,255,255,.22); color: rgba(255,255,255,.75); font: 500 15px var(--font-display); }
+.btn-outline:hover:not(:disabled) { background: rgba(255,255,255,.08); }
+.btn-outline:disabled { opacity: .4; }
+.btn-outline.sm { height: 40px; padding: 0 18px; font-size: 14px; }
+.btn-outline.xs { height: 34px; padding: 0 14px; font-size: 13px; }
+
+/* notices: teal (info), yellow (warn), red (danger), green (ok), gold (hands) */
+.notice { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; color: rgba(255,255,255,.88); }
+.notice.center { align-items: center; }
+.notice > .base-icon, .notice > .plui-icon { font-size: 18px; margin-top: 2px; flex: none; }
+.notice.center > .base-icon, .notice.center > .plui-icon { margin-top: 0; }
+.notice-info { background: rgba(0,161,169,.14); border: 1px solid rgba(0,161,169,.4); }
+.notice-info > .base-icon { color: var(--wiz-teal-soft); }
+.notice-warn { background: rgba(255,184,0,.1); border: 1px solid rgba(255,184,0,.35); }
+.notice-warn > .base-icon { color: var(--warning); }
+.notice-danger { background: rgba(224,36,36,.14); border: 1px solid rgba(240,82,82,.5); }
+.notice-danger > .base-icon { color: var(--danger-alt); }
+.notice-ok { background: rgba(34,197,94,.14); border: 1px solid rgba(34,197,94,.45); }
+.notice-ok > .base-icon { color: var(--success); }
+.notice-gold { background: rgba(200,144,58,.12); border: 1px solid rgba(200,144,58,.45); }
+.notice-gold > .base-icon, .notice-gold > .plui-icon { color: var(--wiz-gold-light); }
+
+/* dark rows (status rows, check rows, app rows) */
+.row { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 12px; background: var(--row-bg); border: 1px solid var(--row-border); color: #fff; }
+.panel { display: flex; flex-direction: column; gap: 12px; padding: 22px; border-radius: var(--r-tile); background: var(--panel-bg); border: 1px solid var(--card-border); }
+
+/* tags */
+.tag { font-size: 11px; padding: 2px 8px; border-radius: var(--r-pill); white-space: nowrap; flex: none; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.08); color: rgba(255,255,255,.6); }
+.tag-teal { background: rgba(0,161,169,.18); color: var(--wiz-teal-soft); border-color: rgba(0,161,169,.4); }
+.tag-gold { background: rgba(200,144,58,.18); color: var(--wiz-gold-light); }
+.tag-warn { background: rgba(255,184,0,.14); color: var(--warning); }
+
+/* inputs */
+.tvlm-input { height: 44px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: rgba(0,0,0,.3); color: #fff; font: 400 15px var(--font-mono); padding: 0 14px; width: 100%; }
+.tvlm-input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.tvlm-input::placeholder { color: rgba(255,255,255,.3); }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > span { font-size: 13px; color: rgba(255,255,255,.6); }
+
+/* circle icon badge on cards */
+.ico-circle { width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; flex: none; }
+.ico-circle > i { font-size: 20px; }
+.check-badge { width: 26px; height: 26px; border-radius: 50%; background: var(--wiz-gold); color: var(--wiz-gold-text); display: flex; align-items: center; justify-content: center; flex: none; }
+.check-badge > i { font-size: 11px; }
+.check-badge.lg { width: 28px; height: 28px; }
+.check-badge.lg > i { font-size: 12px; }
+
+/* the stage number bubble */
+.num { width: 24px; height: 24px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 700 12px var(--font-display); flex: none; }
