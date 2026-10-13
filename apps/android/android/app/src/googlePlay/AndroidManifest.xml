@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ΤΟ BUILD ΤΟΥ PLAY ΔΕΝ ΖΗΤΑ ΚΑΜΙΑ ΕΥΑΙΣΘΗΤΗ ΑΔΕΙΑ (κανόνας Jim, 4/10/2026). Το ίδιο κάνει το PLUI
+  (`apps/plui/src/googlePlay/AndroidManifest.xml`) και το ίδιο έκανε και η παλιά έκδοση Capacitor:
+  όσα apps μας ζουν στο Play ενημερώνονται ΑΠΟ ΤΟ PLAY, όχι από APK.
+
+  Η `REQUEST_INSTALL_PACKAGES` μπήκε στο κοινό manifest στις 3/10 για την αυτο-ενημέρωση του
+  sideload αντιγράφου (σε τηλεόραση δεν υπάρχει browser για να σταλεί κάποιος σε σελίδα λήψης).
+  Η έκδοση του καταστήματος δεν την αγγίζει ΠΟΤΕ: το `canDirectInstall` είναι ψευδές σε build του
+  Play (`Session.canDirectInstall` → `selfInfo.playBuild`), άρα εκεί δεν κατεβαίνει ούτε
+  εγκαθίσταται APK τοπικά — το κουμπί ανοίγει το Play. Αν έμενε δηλωμένη, θα ταξίδευε μια ευαίσθητη
+  άδεια που δεν χρησιμοποιείται: δήλωση στο Console, έλεγχος πολιτικής, και ρίσκο απόρριψης για το
+  τίποτα. Τα 6 και 8 που εγκρίθηκαν δεν την είχαν.
+
+  Ό,τι πηγαίνει σε box φεύγει με adb μέσω δικτύου και δεν χρειάζεται καμία άδεια αυτής της συσκευής.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission
+        android:name="android.permission.REQUEST_INSTALL_PACKAGES"
+        tools:node="remove" />
+</manifest>

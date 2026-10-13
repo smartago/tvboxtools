@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>TV Box Tools</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14325c"/>
+      <stop offset="1" stop-color="#081629"/>
+    </linearGradient>
+    <linearGradient id="top" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b2f45"/>
+      <stop offset="1" stop-color="#0d1a28"/>
+    </linearGradient>
+    <linearGradient id="side" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8d97a3"/>
+      <stop offset="0.45" stop-color="#eef2f6"/>
+      <stop offset="1" stop-color="#7d8792"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe9a3"/>
+      <stop offset="0.5" stop-color="#f2b632"/>
+      <stop offset="1" stop-color="#b9780f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#46f3ff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#46f3ff" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="jaw">
+      <rect width="512" height="512" fill="#fff"/>
+      <rect x="236" y="36" width="40" height="86" rx="6" fill="#000"/>
+    </mask>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- the box: silver body, dark top with a circuit glow, cyan LED -->
+  <path d="M96 318 L256 262 L416 318 L416 362 Q416 380 398 386 L270 430 Q256 435 242 430 L114 386 Q96 380 96 362 Z" fill="url(#side)"/>
+  <path d="M96 318 L256 262 L416 318 L256 374 Z" fill="url(#top)" stroke="#5fe8f5" stroke-width="3" stroke-linejoin="round"/>
+  <ellipse cx="256" cy="318" rx="110" ry="36" fill="url(#glow)"/>
+  <path d="M256 296 L296 310 L256 324 L216 310 Z" fill="none" stroke="#7ff6ff" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M176 318 H216 M296 310 H336 M256 324 V350 M256 296 V280" stroke="#3fd7e6" stroke-width="3" stroke-linecap="round"/>
+  <path d="M256 374 L256 433" stroke="#6b7480" stroke-width="2"/>
+  <rect x="318" y="372" width="54" height="12" rx="6" transform="rotate(-19 345 378)" fill="#4ff0ff"/>
+
+  <!-- the wrench, gold, across the top -->
+  <g transform="rotate(40 256 170)">
+    <g mask="url(#jaw)">
+      <circle cx="256" cy="110" r="58" fill="url(#gold)"/>
+    </g>
+    <rect x="234" y="140" width="44" height="170" rx="22" fill="url(#gold)"/>
+    <circle cx="256" cy="282" r="9" fill="#9a620c"/>
+  </g>
+</svg>

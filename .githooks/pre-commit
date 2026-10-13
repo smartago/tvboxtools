@@ -1,0 +1,30 @@
+#!/bin/sh
+# The signing key must never enter this repository — it is the ONE key that signs both the Play
+# build and the sideload build of our launcher, so a leak is not "rotate and move on": every box
+# out there trusts it. Jim, 23/9/2026, before the repo goes public: "our key must not be found
+# in a public git."
+#
+# .gitignore already refuses keystore/*.jks and keystore/signing.properties. This hook is the
+# second lock, for the day someone copies the key somewhere .gitignore does not cover: it looks at
+# what is being COMMITTED, by name and by content, and stops the commit.
+#
+# Installed per clone with:  git config core.hooksPath .githooks
+
+fail=0
+for f in $(git diff --cached --name-only --diff-filter=AM); do
+  case "$f" in
+    *.jks|*.keystore|*.p12|*.pfx|*.pepk|*.pem|*.key|*signing.properties|*local.properties|.env|.env.*)
+      case "$f" in *.env.example) ;; *)
+        echo "pre-commit: REFUSED — '$f' looks like a key or a secrets file." >&2; fail=1 ;;
+      esac ;;
+  esac
+  # documentation may NAME these strings while explaining the rule; a key file never has a .md name
+  case "$f" in *.md) continue ;; esac
+  if git show ":$f" 2>/dev/null | grep -qE '^(storePassword|keyPassword)\s*=|BEGIN (RSA |EC |)PRIVATE KEY'; then
+    echo "pre-commit: REFUSED — '$f' contains a keystore password or a private key." >&2; fail=1
+  fi
+done
+if [ "$fail" = 1 ]; then
+  echo "pre-commit: nothing was committed. Keys live in Dropbox KEYS/, never in git." >&2
+  exit 1
+fi

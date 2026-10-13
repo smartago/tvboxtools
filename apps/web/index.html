@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!-- THE line that made the app unusable on a phone until 27/9/2026: `width=1280` told every
+         handset to lay the page out 1280 px wide and then cut off whatever did not fit. The app
+         now follows the real screen and changes shape below 780 px (portrait.css); a television
+         is unaffected, because <App> scales its own canvas from window.innerWidth whatever that
+         is. viewport-fit=cover is for edge-to-edge Android (targetSdk 35+). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <title>TV Launcher Manager</title>
+    <link rel="icon" href="./brand/hoteltv-icon-512.png" id="favicon" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- ΦΥΛΑΚΑΣ ΓΙΑ ΠΑΛΙΟ WEBVIEW (9/10/2026, AVD Android 9 με stock WebView 66): κάτω από Chrome 67
+         δεν υπάρχει BigInt, άρα ούτε υπογραφή RSA για το ADB — το bundle δεν μπορεί να τρέξει, και
+         χωρίς αυτή τη γραμμή ο viewer έβλεπε λευκή οθόνη για πάντα. Σκέτη ES5 επίτηδες: πρέπει να
+         τρέχει ΑΚΡΙΒΩΣ εκεί που το υπόλοιπο δεν τρέχει. Μόνο σε Android WebView («; wv») — ένα
+         παλιό desktop Chrome δεν είναι δική μας υπόθεση. -->
+    <script>
+      (function () {
+        var ua = navigator.userAgent || '';
+        var m = /Chrome\/(\d+)/.exec(ua);
+        var v = m ? parseInt(m[1], 10) : 0;
+        if (!/; wv\)/.test(ua) || !v || v >= 67) return;
+        var el = document.getElementById('app');
+        if (!el) return;
+        el.innerHTML =
+          '<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0e1c3d;color:#fff;font-family:sans-serif;padding:6vw;box-sizing:border-box">' +
+          '<div style="max-width:1100px;font-size:3.2vmin;line-height:1.5">' +
+          '<div style="font-size:5vmin;font-weight:700;margin-bottom:2vmin">This TV’s web engine is too old for this app</div>' +
+          '<div>Android System WebView here is Chrome ' + v + '; the app needs 67 or newer.</div>' +
+          '<div style="margin-top:2vmin">Update <b>Android System WebView</b> from Google Play, or set this box up from the <b>Windows app</b> or your <b>phone</b>: <b>tvboxtools.com</b></div>' +
+          '<div style="margin-top:4vmin;color:rgba(255,255,255,.8)">Η μηχανή web αυτής της TV (Chrome ' + v + ') είναι πολύ παλιά. Ενημέρωσε το Android System WebView από το Google Play, ή ρύθμισε το box από το Windows app ή το κινητό: tvboxtools.com</div>' +
+          '</div></div>';
+        window.__tvlmOldWebView = v;
+      })();
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "tvboxtools": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/server/tvboxtools.mjs", "--mcp", "--no-shell"]
+    }
+  }
+}
